@@ -10,6 +10,7 @@ import SalidaDetalle from './pages/SalidaDetalle'
 import Wrapped from './pages/Wrapped'
 import BottomNav from './components/BottomNav'
 import InstallPrompt from './components/InstallPrompt'
+import Novedades from './components/Novedades'
 import type { Tab } from './components/BottomNav'
 import type { ID } from './types'
 
@@ -79,6 +80,7 @@ export default function App() {
       ) : (
         <>
           <main className="flex-1 overflow-y-auto no-scrollbar">
+            <Novedades />
             <InstallPrompt />
             {tab === 'ranking' && (
               <Ranking meId={me.id} onOpenSalida={(id) => setOverlay({ name: 'salida', id })} />

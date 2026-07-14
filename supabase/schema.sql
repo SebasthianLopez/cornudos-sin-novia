@@ -171,6 +171,15 @@ create table public.joda_insignias_otorgadas (
   "otorgadaEn" text not null
 );
 
+-- Suscripciones web push (una fila por celu). No entra en joda_get_db() ni en
+-- realtime: solo la usa la edge function joda-push para enviar notificaciones.
+create table public.joda_push_subs (
+  endpoint text primary key,
+  "profileId" text not null,
+  sub jsonb not null,
+  "createdAt" text not null
+);
+
 -- ---------------- RLS: abierto a anon (app privada entre amigos) -------------
 do $$
 declare t text;

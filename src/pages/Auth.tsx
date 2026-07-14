@@ -25,9 +25,9 @@ export default function Auth() {
   const pideCodigo = necesitaCodigo()
   const codigoOk = !pideCodigo || codigoValido(codigo)
 
-  const doLogin = (p: string) => {
+  const doLogin = async (p: string) => {
     if (!selected) return
-    const res = login(selected.id, p)
+    const res = await login(selected.id, p)
     if (!res.ok) {
       setError(res.error)
       setPin('')
@@ -38,7 +38,7 @@ export default function Auth() {
     setError('')
     setPin(v)
     if (v.length === 4) {
-      if (mode === 'login') setTimeout(() => doLogin(v), 120)
+      if (mode === 'login') setTimeout(() => void doLogin(v), 120)
     }
   }
 

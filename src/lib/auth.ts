@@ -4,6 +4,7 @@
 // "grupo de amigos", no de banco — a propósito.
 import { getDB, getSessionId, mutate, setSessionId, uid } from './store'
 import { avatarPath, uploadDataUrl } from './storage'
+import { esPinHasheado, hashPin, verificarPin } from './pinHash'
 import type { Profile } from '../types'
 
 const COLORS = ['#a855f7', '#22d3ee', '#f59e0b', '#ec4899', '#34d399', '#60a5fa', '#f43f5e', '#facc15']
@@ -68,7 +69,7 @@ export async function register(input: RegisterInput): Promise<RegisterResult> {
     avatar,
     emoji: EMOJIS[count % EMOJIS.length],
     color: COLORS[count % COLORS.length],
-    pin: input.pin,
+    pin: await hashPin(input.pin, id),
     createdAt: new Date().toISOString(),
   }
   mutate((db) => {
@@ -82,10 +83,20 @@ export type LoginResult =
   | { ok: true; profile: Profile }
   | { ok: false; error: string }
 
-export function login(profileId: string, pin: string): LoginResult {
+export async function login(profileId: string, pin: string): Promise<LoginResult> {
   const profile = getDB().profiles.find((p) => p.id === profileId)
   if (!profile) return { ok: false, error: 'Perfil no encontrado.' }
-  if (profile.pin !== pin) return { ok: false, error: 'PIN incorrecto.' }
+  if (!(await verificarPin(pin, profile.pin, profile.id)))
+    return { ok: false, error: 'PIN incorrecto.' }
+  // Perfil viejo con PIN en texto plano → se re-guarda hasheado (migración
+  // transparente: se completa a medida que cada uno entra).
+  if (!esPinHasheado(profile.pin)) {
+    const hashed = await hashPin(pin, profile.id)
+    mutate((db) => {
+      const p = db.profiles.find((x) => x.id === profileId)
+      if (p) p.pin = hashed
+    })
+  }
   setSessionId(profile.id)
   return { ok: true, profile }
 }

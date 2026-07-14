@@ -8,6 +8,7 @@ import {
   cancelarApuesta,
 } from '../lib/actions'
 import { profileById, resultadoApuesta } from '../lib/points'
+import { notificarAmigos } from '../lib/push'
 import Avatar from './Avatar'
 import type { Apuesta, ID } from '../types'
 
@@ -29,7 +30,10 @@ export default function ApuestaSection({ salidaId, meId }: Props) {
   const crear = () => {
     if (!texto.trim()) return
     // acá se escribe "1,5" con coma: normalizamos antes de parsear
-    crearApuesta(salidaId, meId, texto, parseFloat(cuota.replace(',', '.')) || 1.5)
+    const cuotaNum = parseFloat(cuota.replace(',', '.')) || 1.5
+    crearApuesta(salidaId, meId, texto, cuotaNum)
+    const yo = profileById(db, meId)?.displayName ?? 'Alguien'
+    notificarAmigos(meId, 'Apuesta nueva', `${yo} tiró: "${texto.trim()}" (cuota ${cuotaNum}x). ¿A favor o en contra?`)
     setTexto('')
     setCuota('1.5')
     setNueva(false)

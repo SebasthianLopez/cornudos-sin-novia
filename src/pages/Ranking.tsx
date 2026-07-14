@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { useDB } from '../lib/store'
 import { computeRanking, profileById } from '../lib/points'
+import { castigadoDelMes, historialCastigos, mesActual, mesAnterior, nombreMes } from '../lib/castigo'
 import { formatPuntos } from '../lib/format'
 import LeaderboardRow from '../components/LeaderboardRow'
 import type { ID } from '../types'
@@ -12,6 +14,12 @@ interface Props {
 export default function Ranking({ meId, onOpenSalida }: Props) {
   const db = useDB()
   const ranking = computeRanking(db)
+  const [historialAbierto, setHistorialAbierto] = useState(false)
+
+  // castigo del mes: el cerrado (mes pasado) manda; el del mes en curso avisa
+  const castigoPasado = castigadoDelMes(db, mesAnterior())
+  const castigoEnCurso = castigadoDelMes(db, mesActual())
+  const historial = historialCastigos(db)
 
   // salida más reciente para los teasers de reto/apuesta en vivo
   const ultima = [...db.salidas].sort((a, b) => b.fecha.localeCompare(a.fecha))[0]
@@ -52,6 +60,45 @@ export default function Ranking({ meId, onOpenSalida }: Props) {
               <p className="text-lg font-bold text-amber-300 mt-1">+{db.puntosConfig.retoBonus}pts</p>
             </button>
           )}
+        </div>
+      )}
+
+      {/* castigo del mes */}
+      {(castigoPasado || castigoEnCurso) && (
+        <div className="px-4 mb-4">
+          <div className="rounded-2xl bg-red-500/10 border border-red-500/20 p-3">
+            <p className="text-[10px] uppercase tracking-wide text-red-300 font-semibold">
+              Castigo del mes
+            </p>
+            {castigoPasado && (
+              <p className="text-sm text-white mt-1 leading-snug">
+                <b>{castigoPasado.perdedor.displayName}</b> quedó último en{' '}
+                {nombreMes(castigoPasado.ym)}
+                {castigoPasado.empate ? ' (empatado abajo)' : ''} —{' '}
+                {db.puntosConfig.castigoTexto}
+              </p>
+            )}
+            {castigoEnCurso && (
+              <p className={`text-xs mt-1 ${castigoPasado ? 'text-gray-500' : 'text-gray-300'}`}>
+                Va camino al castigo este mes: <b className="text-gray-200">{castigoEnCurso.perdedor.displayName}</b>{' '}
+                ({formatPuntos(castigoEnCurso.puntos)} pts ganados)
+              </p>
+            )}
+            {historial.length > 0 && (
+              <button
+                onClick={() => setHistorialAbierto((v) => !v)}
+                className="text-[11px] text-gray-500 mt-2 active:scale-95 transition"
+              >
+                {historialAbierto ? 'Ocultar historial' : 'Ver historial de castigados'}
+              </button>
+            )}
+            {historialAbierto &&
+              historial.map((c) => (
+                <p key={c.ym} className="text-xs text-gray-500 mt-1">
+                  {nombreMes(c.ym)}: {c.perdedor.displayName} ({formatPuntos(c.puntos)} pts)
+                </p>
+              ))}
+          </div>
         </div>
       )}
 

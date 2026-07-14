@@ -283,6 +283,8 @@ export function votarResolucionApuesta(apuestaId: ID, votanteId: ID, voto: boole
     if (existing) existing.voto = voto
     else db.apuestaVotosResolucion.push({ id: uid(), apuestaId, votanteId, voto })
     resolveApuesta(db, apuestaId)
+    // la resolución puede disparar insignias (ej. Batacazo: cuota alta acertada)
+    evaluarInsigniasEvento(db, ap.salidaId)
   })
 }
 

@@ -48,6 +48,7 @@ const DEFAULT_PUNTOS_CONFIG = {
   retoBonus: 120,
   puntosIniciales: 1000,
   codigoGrupo: '4444',
+  castigoTexto: 'Paga el primer round de la próxima salida',
 }
 
 function emptyDB(): DB {

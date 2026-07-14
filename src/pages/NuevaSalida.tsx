@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useDB, today } from '../lib/store'
 import { crearSalida } from '../lib/actions'
+import { notificarAmigos } from '../lib/push'
 import Avatar from '../components/Avatar'
 import type { ID } from '../types'
 
@@ -23,6 +24,12 @@ export default function NuevaSalida({ meId, onCreated, onCancel }: Props) {
 
   const submit = () => {
     const id = crearSalida({ fecha, lugar, notas, creadoPor: meId, participantes })
+    const yo = db.profiles.find((p) => p.id === meId)?.displayName ?? 'Alguien'
+    notificarAmigos(
+      meId,
+      'Arrancó la joda',
+      `${yo} creó una salida${lugar.trim() ? ` en ${lugar.trim()}` : ''}. Entrá a cargar tus stats.`
+    )
     onCreated(id)
   }
 

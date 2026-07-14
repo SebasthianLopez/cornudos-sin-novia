@@ -8,6 +8,7 @@ import {
   votarConfirmacionReto,
 } from '../lib/actions'
 import { profileById } from '../lib/points'
+import { notificarAmigos } from '../lib/push'
 import Avatar from './Avatar'
 import type { ID } from '../types'
 
@@ -78,6 +79,8 @@ export default function RetoSection({ salidaId, meId }: Props) {
             onClick={() => {
               if (texto.trim()) {
                 proponerReto(salidaId, meId, texto)
+                const yo = profileById(db, meId)?.displayName ?? 'Alguien'
+                notificarAmigos(meId, 'Reto propuesto', `${yo} propone: "${texto.trim()}". Entrá a votar.`)
                 setTexto('')
               }
             }}

@@ -102,6 +102,24 @@ export function puntosEnSalida(db: DB, salidaId: ID, profileId: ID): number {
   return total
 }
 
+/**
+ * Puntos totales de un perfil en UNA salida, incluyendo retos confirmados y
+ * apuestas resueltas de esa salida (a diferencia de puntosEnSalida, que solo
+ * cuenta tragos/rechazos/MVP). Base de rivalidades, castigo del mes y lugares.
+ */
+export function puntosCompletosEnSalida(db: DB, salidaId: ID, profileId: ID): number {
+  let total = puntosEnSalida(db, salidaId, profileId)
+  for (const c of db.retoCumplimientos) {
+    if (c.profileId !== profileId || c.estado !== 'confirmado') continue
+    const prop = db.retoPropuestas.find((p) => p.id === c.retoPropuestaId)
+    if (prop?.salidaId === salidaId) total += db.puntosConfig.retoBonus
+  }
+  for (const ap of db.apuestas) {
+    if (ap.salidaId === salidaId) total += resultadoApuesta(db, ap.id, profileId)
+  }
+  return total
+}
+
 export function nombreTrago(codigos: TragoCodigo): string {
   const map: Record<TragoCodigo, string> = {
     cerveza: 'Cervezas',

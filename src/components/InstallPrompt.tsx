@@ -18,7 +18,7 @@ interface BIPEvent extends Event {
 const APP_URL = 'https://sebasthianlopez.github.io/cornudos-sin-novia/'
 const ua = navigator.userAgent
 // iPadOS moderno se hace pasar por Mac: Macintosh + pantalla táctil = iPad.
-const esIos = /iphone|ipad|ipod/i.test(ua) || (/macintosh/i.test(ua) && navigator.maxTouchPoints > 1)
+export const esIos = /iphone|ipad|ipod/i.test(ua) || (/macintosh/i.test(ua) && navigator.maxTouchPoints > 1)
 const esNavegadorEmbebido = /whatsapp|instagram|fban|fbav|fb_iab|messenger|telegram|line\//i.test(ua)
 
 export const estaInstalada = () =>

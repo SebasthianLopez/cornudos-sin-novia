@@ -3,15 +3,21 @@
 //  - tipo 'titulo': se recalculan siempre (ej. "Rey del Fernet" cambia si otro
 //    lo supera), así que NO se guardan: se computan al vuelo.
 import type { DB, ID, InsigniaCatalogo, TragoCodigo } from '../types'
+import { resultadoApuesta } from './points'
+import { castigadoDelMes, mesAnterior } from './castigo'
 
 export const CATALOGO: InsigniaCatalogo[] = [
   { codigo: 'rey_fernet', nombre: 'Rey del Fernet', descripcion: 'El que más fernet tomó en la historia', icono: '👑', tipo: 'titulo' },
   { codigo: 'rey_cerveza', nombre: 'Barril Andante', descripcion: 'El que más cerveza tomó en la historia', icono: '🍺', tipo: 'titulo' },
   { codigo: 'rey_mvp', nombre: 'El Crack', descripcion: 'El que más veces fue MVP', icono: '🏆', tipo: 'titulo' },
   { codigo: 'rey_rechazos', nombre: 'Corazón de Piedra', descripcion: 'El que más rechazos coleccionó', icono: '💔', tipo: 'titulo' },
+  { codigo: 'cornudo_mes', nombre: 'Cornudo del Mes', descripcion: 'Quedó último en el ranking del mes pasado', icono: '🐮', tipo: 'titulo' },
+  { codigo: 'el_apostador', nombre: 'El Apostador', descripcion: 'El que más puntos ganó apostando', icono: '🎲', tipo: 'titulo' },
+  { codigo: 'nunca_falta', nombre: 'Nunca Falta', descripcion: 'El que más salidas tiene en la historia', icono: '📅', tipo: 'titulo' },
   { codigo: 'rechazo_serial', nombre: 'Insistente', descripcion: '3+ rechazos en una sola noche', icono: '🙈', tipo: 'evento' },
   { codigo: 'esponja', nombre: 'Esponja', descripcion: '20+ tragos en una sola noche', icono: '🧽', tipo: 'evento' },
   { codigo: 'sobreviviente', nombre: 'Sobreviviente', descripcion: 'Salió 3 findes seguidos', icono: '🧟', tipo: 'evento' },
+  { codigo: 'batacazo', nombre: 'El Batacazo', descripcion: 'Acertó una apuesta con cuota 2.5x o más', icono: '💥', tipo: 'evento' },
 ]
 
 export function catalogoDe(codigo: string): InsigniaCatalogo | undefined {
@@ -43,6 +49,13 @@ export function titularesDinamicos(db: DB): Record<string, ID | null> {
     rey_cerveza: pick((id) => totalTrago(db, id, 'cerveza')),
     rey_mvp: pick((id) => db.salidas.filter((s) => s.mvpGanadorId === id).length),
     rey_rechazos: pick((id) => db.rechazos.filter((r) => r.profileId === id).reduce((a, r) => a + r.cantidad, 0)),
+    cornudo_mes: castigadoDelMes(db, mesAnterior())?.perdedor.id ?? null,
+    el_apostador: pick((id) =>
+      db.apuestaParticipaciones
+        .filter((p) => p.profileId === id)
+        .reduce((a, p) => a + resultadoApuesta(db, p.apuestaId, id), 0)
+    ),
+    nunca_falta: pick((id) => db.salidas.filter((s) => s.participantes.includes(id)).length),
   }
 }
 
@@ -79,6 +92,12 @@ export function evaluarInsigniasEvento(db: DB, salidaId: ID) {
       .filter((r) => r.salidaId === salidaId && r.profileId === profileId)
       .reduce((a, r) => a + r.cantidad, 0)
     if (tragos >= 20) otorgar(db, profileId, 'esponja', salidaId)
+
+    // acertó una apuesta de cuota alta (2.5x+) en esta salida
+    for (const ap of db.apuestas) {
+      if (ap.salidaId !== salidaId || ap.cuota < 2.5) continue
+      if (resultadoApuesta(db, ap.id, profileId) > 0) otorgar(db, profileId, 'batacazo', salidaId)
+    }
   }
 }
 

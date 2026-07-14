@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useDB } from '../lib/store'
 import { logout } from '../lib/auth'
 import { avatarPath, uploadDataUrl } from '../lib/storage'
@@ -6,10 +6,14 @@ import { updateProfile, setPuntosTrago, setPuntosConfig } from '../lib/actions'
 import { rankingRowFor, TRAGO_CODIGOS } from '../lib/points'
 import { insigniasDe } from '../lib/badges'
 import { rachaDe } from '../lib/streak'
-import { fileToDataUrl, formatPuntos } from '../lib/format'
+import { rivalidadesDe } from '../lib/rivalidades'
+import { lugaresDelGrupo } from '../lib/lugares'
+import { pushSoportado, suscripcionActual, activarPush, desactivarPush } from '../lib/push'
+import { fileToDataUrl, formatFechaCorta, formatPuntos } from '../lib/format'
 import Avatar from '../components/Avatar'
 import Sheet from '../components/Sheet'
-import { ComoInstalar, estaInstalada } from '../components/InstallPrompt'
+import { ComoInstalar, estaInstalada, esIos } from '../components/InstallPrompt'
+import { hashPin } from '../lib/pinHash'
 import type { DB, ID, Profile, TragoCodigo } from '../types'
 
 interface Props {
@@ -24,6 +28,9 @@ export default function Perfil({ meId, onWrapped }: Props) {
   const [configOpen, setConfigOpen] = useState(false)
   const [invitarOpen, setInvitarOpen] = useState(false)
   const [instalarOpen, setInstalarOpen] = useState(false)
+  const [rivalesOpen, setRivalesOpen] = useState(false)
+  const [lugaresOpen, setLugaresOpen] = useState(false)
+  const [notifOpen, setNotifOpen] = useState(false)
 
   if (!me) return null
 
@@ -88,6 +95,9 @@ export default function Perfil({ meId, onWrapped }: Props) {
         {!estaInstalada() && (
           <MenuRow label="Instalar la app en el celu" onClick={() => setInstalarOpen(true)} />
         )}
+        <MenuRow label="Notificaciones" onClick={() => setNotifOpen(true)} />
+        <MenuRow label="Rivalidades" onClick={() => setRivalesOpen(true)} />
+        <MenuRow label="Lugares del grupo" onClick={() => setLugaresOpen(true)} />
         <MenuRow label="Mi Wrapped del año" onClick={onWrapped} />
         <MenuRow label="Configurar puntos" onClick={() => setConfigOpen(true)} />
         <MenuRow label="Cerrar sesión" onClick={logout} danger />
@@ -109,6 +119,18 @@ export default function Perfil({ meId, onWrapped }: Props) {
 
       <Sheet open={instalarOpen} onClose={() => setInstalarOpen(false)} title="Instalar la app">
         <ComoInstalar />
+      </Sheet>
+
+      <Sheet open={notifOpen} onClose={() => setNotifOpen(false)} title="Notificaciones">
+        <Notificaciones meId={meId} />
+      </Sheet>
+
+      <Sheet open={rivalesOpen} onClose={() => setRivalesOpen(false)} title="Rivalidades">
+        <Rivalidades meId={meId} />
+      </Sheet>
+
+      <Sheet open={lugaresOpen} onClose={() => setLugaresOpen(false)} title="Lugares del grupo">
+        <Lugares />
       </Sheet>
     </div>
   )
@@ -227,7 +249,7 @@ function EditProfile({ me, onDone }: { me: Profile; onDone: () => void }) {
         avatarFinal = (await uploadDataUrl(avatarPath(me.id), avatarFinal)) ?? avatarFinal
       }
       const patch: Partial<Profile> = { displayName: nombre.trim() || me.displayName, avatar: avatarFinal }
-      if (/^\d{4}$/.test(pin)) patch.pin = pin
+      if (/^\d{4}$/.test(pin)) patch.pin = await hashPin(pin, me.id)
       updateProfile(me.id, patch)
       onDone()
     } finally {
@@ -285,6 +307,11 @@ const TRAGO_LABEL: Record<TragoCodigo, string> = {
 
 function ConfigPuntos() {
   const db = useDB()
+  const [castigo, setCastigo] = useState(db.puntosConfig.castigoTexto)
+  const guardarCastigo = () => {
+    const t = castigo.trim()
+    if (t && t !== db.puntosConfig.castigoTexto) setPuntosConfig({ castigoTexto: t })
+  }
   return (
     <div className="space-y-4">
       <p className="text-xs text-gray-500">Cuántos puntos vale cada cosa. Se aplica a todo el ranking.</p>
@@ -310,6 +337,185 @@ function ConfigPuntos() {
           onChange={(v) => setPuntosConfig({ puntosIniciales: v })}
         />
       </div>
+      <div>
+        <label className="text-xs text-gray-500">Castigo del último del mes</label>
+        <input
+          value={castigo}
+          onChange={(e) => setCastigo(e.target.value)}
+          onBlur={guardarCastigo}
+          placeholder="Ej: paga el primer round"
+          className="w-full mt-1 px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white text-sm focus:border-brand-500 focus:outline-none"
+        />
+        <p className="text-[11px] text-gray-600 mt-1">
+          Cada mes, el que menos puntos ganó carga con esto. Sale en el Ranking.
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function Rivalidades({ meId }: { meId: ID }) {
+  const db = useDB()
+  const rivalidades = rivalidadesDe(db, meId)
+
+  if (rivalidades.length === 0)
+    return (
+      <p className="text-sm text-gray-500">
+        Todavía no compartiste ninguna salida. Cuando salgan juntos, acá se arma el historial.
+      </p>
+    )
+
+  return (
+    <div className="space-y-2">
+      <p className="text-xs text-gray-500 mb-1">
+        Gana la noche el que más puntos sumó (tragos, rechazos, MVP, retos y apuestas).
+      </p>
+      {rivalidades.map((r) => {
+        const dominio =
+          r.ganadas > r.perdidas
+            ? { t: 'La dominás', c: 'text-green-400' }
+            : r.ganadas < r.perdidas
+              ? { t: 'Te domina', c: 'text-red-400' }
+              : { t: 'Parejo', c: 'text-gray-400' }
+        return (
+          <div
+            key={r.rival.id}
+            className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/5 border border-white/5"
+          >
+            <Avatar profile={r.rival} size={40} />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-200 truncate">{r.rival.displayName}</p>
+              <p className="text-[11px] text-gray-600">
+                {r.salidasJuntos} {r.salidasJuntos === 1 ? 'salida juntos' : 'salidas juntos'}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm font-bold tabular-nums text-white">
+                <span className="text-green-400">{r.ganadas}</span>
+                <span className="text-gray-600 mx-1">–</span>
+                <span className="text-red-400">{r.perdidas}</span>
+                {r.empates > 0 && <span className="text-gray-500 text-xs"> ({r.empates}E)</span>}
+              </p>
+              <p className={`text-[11px] font-semibold ${dominio.c}`}>{dominio.t}</p>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function Lugares() {
+  const db = useDB()
+  const lugares = lugaresDelGrupo(db)
+
+  if (lugares.length === 0)
+    return (
+      <p className="text-sm text-gray-500">
+        Todavía no hay salidas con lugar cargado. Poné el "¿Dónde?" al crear la salida y acá se
+        arma el ranking de lugares.
+      </p>
+    )
+
+  return (
+    <div className="space-y-2">
+      <p className="text-xs text-gray-500 mb-1">Dónde sale la banda y cuánto rinde cada lugar.</p>
+      {lugares.map((l, i) => (
+        <div
+          key={l.nombre.toLowerCase()}
+          className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/5 border border-white/5"
+        >
+          <span className="w-5 text-center text-sm font-bold text-gray-500">{i + 1}</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-200 truncate">{l.nombre}</p>
+            <p className="text-[11px] text-gray-600">
+              {l.salidas} {l.salidas === 1 ? 'salida' : 'salidas'} · última{' '}
+              {formatFechaCorta(l.ultimaFecha)}
+            </p>
+          </div>
+          <span className="text-sm font-bold text-brand-300 tabular-nums">
+            {formatPuntos(l.puntosGrupo)} pts
+          </span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+type EstadoNotif = 'cargando' | 'activas' | 'inactivas' | 'denegado' | 'no-soportado'
+
+function Notificaciones({ meId }: { meId: ID }) {
+  const [estado, setEstado] = useState<EstadoNotif>('cargando')
+  const [trabajando, setTrabajando] = useState(false)
+
+  useEffect(() => {
+    void (async () => {
+      if (!pushSoportado()) return setEstado('no-soportado')
+      if (Notification.permission === 'denied') return setEstado('denegado')
+      setEstado((await suscripcionActual()) ? 'activas' : 'inactivas')
+    })()
+  }, [])
+
+  const activar = async () => {
+    setTrabajando(true)
+    const res = await activarPush(meId)
+    setTrabajando(false)
+    if (res === 'ok') setEstado('activas')
+    else if (res === 'denegado') setEstado('denegado')
+  }
+
+  const desactivar = async () => {
+    setTrabajando(true)
+    await desactivarPush()
+    setTrabajando(false)
+    setEstado('inactivas')
+  }
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-gray-400">
+        Te avisamos cuando arranca una salida, cuando tiran una apuesta o proponen un reto.
+      </p>
+
+      {estado === 'no-soportado' &&
+        (esIos && !estaInstalada() ? (
+          <p className="text-sm text-amber-300">
+            En iPhone las notificaciones funcionan solo con la app instalada. Andá a{' '}
+            <b>Instalar la app en el celu</b> y después volvé acá.
+          </p>
+        ) : (
+          <p className="text-sm text-gray-500">Este navegador no soporta notificaciones push.</p>
+        ))}
+
+      {estado === 'denegado' && (
+        <p className="text-sm text-amber-300">
+          Las notificaciones están bloqueadas para esta app. Habilitalas desde los ajustes del
+          celular/navegador y volvé a intentar.
+        </p>
+      )}
+
+      {estado === 'activas' && (
+        <>
+          <p className="text-sm text-green-400 font-medium">Notificaciones activadas en este celu.</p>
+          <button
+            onClick={() => void desactivar()}
+            disabled={trabajando}
+            className="w-full py-3 rounded-2xl bg-white/5 border border-white/10 text-gray-300 font-semibold active:scale-[0.98] transition disabled:opacity-50"
+          >
+            {trabajando ? 'Un momento…' : 'Desactivar'}
+          </button>
+        </>
+      )}
+
+      {estado === 'inactivas' && (
+        <button
+          onClick={() => void activar()}
+          disabled={trabajando}
+          className="w-full py-3 rounded-2xl bg-brand-500 text-white font-semibold active:scale-[0.98] transition disabled:opacity-50"
+        >
+          {trabajando ? 'Activando…' : 'Activar notificaciones'}
+        </button>
+      )}
     </div>
   )
 }

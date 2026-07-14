@@ -11,7 +11,7 @@ export const SUPABASE_URL: string =
   (import.meta.env.VITE_SUPABASE_URL as string | undefined) ??
   'https://aiyadcolohxkaxsrboty.supabase.co'
 
-const SUPABASE_ANON_KEY: string =
+export const SUPABASE_ANON_KEY: string =
   (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ??
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpeWFkY29sb2h4a2F4c3Jib3R5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMjc4NzMsImV4cCI6MjA5NDkwMzg3M30.kGQ0V338SFK6nzjL_4vRPkOByCMUowQiwU9hnPvX0rU'
 

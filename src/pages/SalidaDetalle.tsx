@@ -8,6 +8,7 @@ import {
   actualizarSalida,
 } from '../lib/actions'
 import { profileById, puntosEnSalida, TRAGO_CODIGOS } from '../lib/points'
+import { compartirTarjetaSalida } from '../lib/tarjeta'
 import { formatFecha, formatPuntos } from '../lib/format'
 import StatCounter from '../components/StatCounter'
 import MvpSection from '../components/MvpSection'
@@ -36,6 +37,7 @@ export default function SalidaDetalle({ salidaId, meId, onBack }: Props) {
   const [editando, setEditando] = useState(false)
   const [lugar, setLugar] = useState(salida?.lugar ?? '')
   const [notas, setNotas] = useState(salida?.notas ?? '')
+  const [compartiendo, setCompartiendo] = useState<'no' | 'generando' | 'descargada'>('no')
 
   if (!salida) {
     return (
@@ -61,6 +63,14 @@ export default function SalidaDetalle({ salidaId, meId, onBack }: Props) {
   const guardarEdicion = () => {
     actualizarSalida(salidaId, { lugar, notas })
     setEditando(false)
+  }
+
+  const compartirNoche = async () => {
+    if (compartiendo === 'generando') return
+    setCompartiendo('generando')
+    const res = await compartirTarjetaSalida(db, salidaId)
+    setCompartiendo(res === 'descargada' ? 'descargada' : 'no')
+    if (res === 'descargada') setTimeout(() => setCompartiendo('no'), 2500)
   }
 
   // resumen de puntos de la noche por participante
@@ -182,6 +192,17 @@ export default function SalidaDetalle({ salidaId, meId, onBack }: Props) {
               </div>
             ))}
           </div>
+          <button
+            onClick={() => void compartirNoche()}
+            disabled={compartiendo === 'generando'}
+            className="w-full mt-3 py-3 rounded-2xl bg-gradient-to-r from-brand-500 to-neon-fuchsia text-white text-sm font-semibold active:scale-[0.98] transition disabled:opacity-60"
+          >
+            {compartiendo === 'generando'
+              ? 'Armando la tarjeta…'
+              : compartiendo === 'descargada'
+                ? 'Tarjeta descargada'
+                : 'Compartir la noche'}
+          </button>
         </section>
 
         <MvpSection salidaId={salidaId} meId={meId} />

@@ -41,6 +41,8 @@ export interface PuntosConfig {
   puntosIniciales: number
   /** código de invitación que se pide al registrarse */
   codigoGrupo: string
+  /** qué le toca al último del ranking de cada mes */
+  castigoTexto: string
 }
 
 export interface Salida {

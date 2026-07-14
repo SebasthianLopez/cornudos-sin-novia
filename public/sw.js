@@ -26,6 +26,34 @@ self.addEventListener('activate', (event) => {
   )
 })
 
+// --------- Notificaciones push (enviadas por la edge function joda-push) ---------
+self.addEventListener('push', (event) => {
+  let data = {}
+  try {
+    data = event.data ? event.data.json() : {}
+  } catch {
+    /* payload raro: se muestra genérico */
+  }
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'Cornudos sin Novia', {
+      body: data.body || '',
+      icon: './icon-192.png',
+      badge: './icon-192.png',
+      data: { url: data.url || './' },
+    })
+  )
+})
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((abiertas) => {
+      for (const c of abiertas) if ('focus' in c) return c.focus()
+      return clients.openWindow(event.notification.data?.url || './')
+    })
+  )
+})
+
 self.addEventListener('fetch', (event) => {
   const req = event.request
   if (req.method !== 'GET') return
