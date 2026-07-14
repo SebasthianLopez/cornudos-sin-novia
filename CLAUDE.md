@@ -13,14 +13,21 @@ salida; el ranking acumula todo. Todo en **español paraguayo ("vos")**.
 - Ícono de la app = **foto del grupo** (`scripts/icon-source.jpeg`, vino de Descargas).
   Regenerar variantes con `node scripts/make-icons.mjs` (sharp, recorte con foco automático).
 
-## Estado actual (2026-07-14) — v1.2.0 en main; deploy a gh-pages lo corre Sebas
+## Estado actual (2026-07-14) — v1.3.0 en main; deploy a gh-pages lo corre Sebas
 
-v1.2.0 (commits `cef499d` + `982f097`, pusheados a main): instalación guiada en iPhone
-(detección de navegador embebido WhatsApp/Instagram + pasos de Safari; entrada "Instalar
-la app en el celu" en Perfil; `icon-180.png` apple-touch-icon) y **auto-update al abrir**
-(ver abajo). ⚠ El push a `gh-pages` **lo bloquea el clasificador al agente** (igual que
-las releases de Pronta) → **Sebas corre `npm run deploy`**. Hasta entonces producción
-sigue en v1.1.1.
+v1.3.0 (commit `63bf035`): 8 mejoras — **notificaciones push** (ver abajo),
+**rivalidades** head-to-head, **castigo del mes** (`castigoTexto` en puntosConfig,
+banner en Ranking), **lugares del grupo**, **tarjeta de la noche** (canvas + share),
+insignias nuevas (Cornudo del Mes, El Apostador, Nunca Falta, El Batacazo), banner de
+**novedades** tras auto-update y **PIN hasheado** (SHA-256, migración transparente al
+loguear). v1.2.0 (`cef499d`): instalación guiada en iPhone + auto-update al abrir.
+
+⚠ Pendiente de Sebas (el clasificador bloquea al agente, igual que en Pronta):
+1. `npm run deploy` (publica a gh-pages; producción sigue en v1.1.1).
+2. Migración `joda_push_subs` (SQL listo abajo/schema.sql) — vía agente con permiso o
+   SQL Editor del dashboard.
+3. Deploy de la edge function `joda-push` (código en `supabase/functions/joda-push/`;
+   el agente la deploya con las claves inyectadas si Sebas aprueba el permiso).
 
 - **URL**: https://sebasthianlopez.github.io/cornudos-sin-novia/
 - **Frontend**: GitHub Pages, repo público `SebasthianLopez/cornudos-sin-novia`
@@ -97,3 +104,19 @@ en iPhone: **Safari → Compartir → Agregar a pantalla de inicio**.
 
 Si se muda a un proyecto Supabase propio: aplicar `supabase/schema.sql` tal cual y cambiar
 URL/key en `src/lib/supabase.ts`.
+
+## Notificaciones push (v1.3.0)
+
+- **Cliente** `src/lib/push.ts`: suscripción por celu (Perfil → Notificaciones, requiere
+  gesto del usuario; en iPhone solo con la app instalada, iOS 16.4+). La suscripción se
+  guarda en la tabla `joda_push_subs` (fuera de `joda_get_db()` y de realtime).
+- **Envío**: la UI (NuevaSalida/ApuestaSection/RetoSection) llama `notificarAmigos()` →
+  edge function **`joda-push`** (fire-and-forget). `actions.ts` sigue sin saber de red.
+- **Edge function** `supabase/functions/joda-push/index.ts`: manda web push con
+  `jsr:@negrel/webpush` a todos menos el originador y limpia suscripciones muertas
+  (404/410). Usa el service role (env automática de Supabase).
+- **Claves VAPID**: par en `supabase/vapid-keys.json` (**gitignored** — repo público);
+  la pública está en `push.ts`, la privada se inyecta al deployar la función (la copia
+  del repo la lee de la env `VAPID_KEYS` como alternativa). Si se pierden las claves,
+  regenerar par nuevo y re-suscribir a todos.
+- El SW (`public/sw.js`) tiene los handlers `push` y `notificationclick`.
