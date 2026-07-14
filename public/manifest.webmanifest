@@ -1,7 +1,7 @@
 {
-  "name": "Cornudos sin Novia — el ranking de la joda",
-  "short_name": "Cornudos",
-  "description": "Registrá las estadísticas de tus salidas con los muchachos y competí por el ranking.",
+  "name": "Cornudos sin Novia",
+  "short_name": "Cornudos sin Novia",
+  "description": "Cornudos sin Novia",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

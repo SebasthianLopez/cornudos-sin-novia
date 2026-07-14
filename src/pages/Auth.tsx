@@ -79,7 +79,6 @@ export default function Auth() {
         <h1 className="mt-5 text-4xl font-display font-bold tracking-tight text-gradient">
           Cornudos sin Novia
         </h1>
-        <p className="mt-2 text-gray-400 text-sm">El ranking oficial de la joda</p>
       </div>
 
       {mode === 'home' && (

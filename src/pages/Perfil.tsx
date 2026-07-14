@@ -88,7 +88,7 @@ export default function Perfil({ meId, onWrapped }: Props) {
         <MenuRow label="Cerrar sesión" onClick={logout} danger />
       </div>
 
-      <p className="text-center text-[11px] text-gray-700 mt-6">Cornudos sin Novia v1.1 · sincronizado con el grupo</p>
+      <p className="text-center text-[11px] text-gray-700 mt-6">Cornudos sin Novia</p>
 
       <Sheet open={editOpen} onClose={() => setEditOpen(false)} title="Editar perfil">
         <EditProfile me={me} onDone={() => setEditOpen(false)} />
@@ -137,7 +137,7 @@ function Invitar() {
   const db = useDB()
   const [copiado, setCopiado] = useState(false)
   const codigo = db.puntosConfig.codigoGrupo
-  const texto = `Sumate a Cornudos sin Novia, el ranking del grupo: ${APP_URL} — Código de invitación: ${codigo}`
+  const texto = `Sumate a Cornudos sin Novia: ${APP_URL} — Código de invitación: ${codigo}`
 
   const copiar = async () => {
     try {
