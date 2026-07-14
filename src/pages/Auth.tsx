@@ -40,11 +40,13 @@ export default function Auth() {
 
   const [saving, setSaving] = useState(false)
 
-  const doRegister = async () => {
+  // Recibe el PIN como argumento: leer el estado acá adentro daría el valor
+  // del render anterior (closure vieja) y la validación fallaría siempre.
+  const doRegister = async (p: string) => {
     if (saving) return
     setSaving(true)
     try {
-      const res = await register({ displayName: nombre, pin, avatar })
+      const res = await register({ displayName: nombre, pin: p, avatar })
       if (!res.ok) {
         setError(res.error)
         setPin('')
@@ -227,7 +229,7 @@ export default function Auth() {
                 onChange={(v) => {
                   setError('')
                   setPin(v)
-                  if (v.length === 4) setTimeout(() => void doRegister(), 120)
+                  if (v.length === 4) setTimeout(() => void doRegister(v), 120)
                 }}
               />
               {saving && <p className="text-center text-brand-300 text-sm mt-4 animate-pulse">Creando tu perfil…</p>}
