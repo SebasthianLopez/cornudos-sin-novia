@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c084fc"/>
+      <stop offset="0.5" stop-color="#e879f9"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <radialGradient id="bg" cx="0.3" cy="0.2" r="1">
+      <stop offset="0" stop-color="#1b1330"/>
+      <stop offset="1" stop-color="#0a0a10"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <!-- cocktail glass, scaled into ~66% safe zone -->
+  <g transform="translate(256 260) scale(0.62) translate(-256 -256)">
+    <g fill="none" stroke="url(#g)" stroke-width="22" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M136 168 L256 300 L376 168 Z"/>
+      <path d="M256 300 L256 396"/>
+      <path d="M196 396 L316 396"/>
+    </g>
+    <path d="M176 190 L256 278 L336 190 Z" fill="url(#g)" opacity="0.35"/>
+    <circle cx="360" cy="150" r="16" fill="#fbbf24"/>
+  </g>
+</svg>
