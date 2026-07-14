@@ -13,7 +13,14 @@ salida; el ranking acumula todo. Todo en **español paraguayo ("vos")**.
 - Ícono de la app = **foto del grupo** (`scripts/icon-source.jpeg`, vino de Descargas).
   Regenerar variantes con `node scripts/make-icons.mjs` (sharp, recorte con foco automático).
 
-## Estado actual (2026-07-14) — v1.1.1 EN PRODUCCIÓN
+## Estado actual (2026-07-14) — v1.2.0 en main; deploy a gh-pages lo corre Sebas
+
+v1.2.0 (commits `cef499d` + `982f097`, pusheados a main): instalación guiada en iPhone
+(detección de navegador embebido WhatsApp/Instagram + pasos de Safari; entrada "Instalar
+la app en el celu" en Perfil; `icon-180.png` apple-touch-icon) y **auto-update al abrir**
+(ver abajo). ⚠ El push a `gh-pages` **lo bloquea el clasificador al agente** (igual que
+las releases de Pronta) → **Sebas corre `npm run deploy`**. Hasta entonces producción
+sigue en v1.1.1.
 
 - **URL**: https://sebasthianlopez.github.io/cornudos-sin-novia/
 - **Frontend**: GitHub Pages, repo público `SebasthianLopez/cornudos-sin-novia`
@@ -60,14 +67,33 @@ salida; el ranking acumula todo. Todo en **español paraguayo ("vos")**.
 - Mobile: taps `touch-action: manipulation`, sin user-select en botones, sin overflow-x,
   `overscroll-behavior-y: none`, sheets con `dvh` + overscroll-contain, safe areas iOS.
 
-## Deploy de updates (flujo probado)
+## Deploy de updates
 
-1. `npm run build`
-2. Copiar `dist/` a una carpeta temporal + `.nojekyll`, `git init -b gh-pages`, commit,
-   `git push --force` a `gh-pages` del repo.
-3. Verificar con curl que el HTML publicado referencia el bundle nuevo (tarda ~30s).
-4. La app instalada se actualiza sola al reabrirse con señal (SW network-first). Si se
-   tocan assets del shell, bumpear `CACHE` en `public/sw.js` (hoy `cornudos-v3`).
+1. **`npm run deploy`** (= build + `scripts/deploy.mjs`: copia `dist/` a temp con
+   `.nojekyll` y hace push --force a `gh-pages`). ⚠ El push lo bloquea el clasificador
+   al agente → lo corre Sebas.
+2. Verificar con curl que el HTML publicado referencia el bundle nuevo (tarda ~30s) y
+   que `version.json` cambió.
+3. Si se tocan assets del shell, bumpear `CACHE` en `public/sw.js` (hoy `cornudos-v4`).
+
+## Auto-update (desde v1.2.0)
+
+- Cada build inyecta `__BUILD_ID__` y publica `version.json` (plugin en `vite.config.ts`).
+- `main.tsx` compara ambos al cargar y en cada `visibilitychange` a visible (cuando la
+  app instalada vuelve al frente): si difieren → `reg.update()` + `location.reload()`,
+  con guarda anti-loop en sessionStorage (CDN a medio propagar). Recargar es seguro: el
+  outbox persiste en localStorage.
+- El SW **nunca** cachea `version.json` (network-only) y las navegaciones siguen
+  network-first. Resultado: abrir o volver a la app con señal ⇒ versión nueva sola.
+
+## Instalación en iPhone (por qué "no dejaba")
+
+iOS no dispara `beforeinstallprompt` (no hay botón "Instalar" nativo) y el navegador
+embebido de WhatsApp/Instagram **no tiene** "Agregar a pantalla de inicio". Desde v1.2.0
+`InstallPrompt.tsx` detecta el navegador embebido (guía a abrir en Safari/Chrome, botón
+copiar link) y muestra pasos numerados por plataforma; `ComoInstalar` se reusa en
+Perfil → "Instalar la app en el celu" (siempre visible si no está instalada). El camino
+en iPhone: **Safari → Compartir → Agregar a pantalla de inicio**.
 
 Si se muda a un proyecto Supabase propio: aplicar `supabase/schema.sql` tal cual y cambiar
 URL/key en `src/lib/supabase.ts`.
