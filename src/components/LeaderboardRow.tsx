@@ -2,7 +2,8 @@ import Avatar from './Avatar'
 import { formatPuntos } from '../lib/format'
 import type { RankingRow } from '../types'
 
-const MEDALS = ['🥇', '🥈', '🥉']
+// oro / plata / bronce para el top 3
+const MEDAL_COLORS = ['#fbbf24', '#cbd5e1', '#d97706']
 
 interface Props {
   row: RankingRow
@@ -14,14 +15,14 @@ interface Props {
 export default function LeaderboardRow({ row, rank, isMe, onClick }: Props) {
   const { profile, conteos, rechazos, mvps, puntosTotal } = row
   const breakdown: string[] = []
-  if (conteos.cerveza) breakdown.push(`${conteos.cerveza} 🍺`)
+  if (conteos.cerveza) breakdown.push(`${conteos.cerveza} cerveza`)
   if (conteos.fernet) breakdown.push(`${conteos.fernet} fernet`)
   if (conteos.whisky) breakdown.push(`${conteos.whisky} whisky`)
   if (conteos.ron) breakdown.push(`${conteos.ron} ron`)
   if (rechazos) breakdown.push(`${rechazos} rechazos`)
   if (mvps) breakdown.push(`${mvps} MVP`)
 
-  const medal = rank <= 3 ? MEDALS[rank - 1] : null
+  const medalColor = rank <= 3 ? MEDAL_COLORS[rank - 1] : null
 
   return (
     <button
@@ -30,9 +31,14 @@ export default function LeaderboardRow({ row, rank, isMe, onClick }: Props) {
         isMe ? 'bg-brand-500/10 border border-brand-500/30' : 'hover:bg-white/5'
       }`}
     >
-      <div className="w-7 shrink-0 text-center">
-        {medal ? (
-          <span className="text-2xl">{medal}</span>
+      <div className="w-7 shrink-0 grid place-items-center">
+        {medalColor ? (
+          <span
+            className="w-7 h-7 rounded-full grid place-items-center text-sm font-bold text-ink-950"
+            style={{ background: medalColor }}
+          >
+            {rank}
+          </span>
         ) : (
           <span className="text-lg font-bold text-gray-500">{rank}</span>
         )}

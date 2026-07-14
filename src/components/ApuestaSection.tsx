@@ -28,7 +28,8 @@ export default function ApuestaSection({ salidaId, meId }: Props) {
 
   const crear = () => {
     if (!texto.trim()) return
-    crearApuesta(salidaId, meId, texto, parseFloat(cuota) || 1.5)
+    // acá se escribe "1,5" con coma: normalizamos antes de parsear
+    crearApuesta(salidaId, meId, texto, parseFloat(cuota.replace(',', '.')) || 1.5)
     setTexto('')
     setCuota('1.5')
     setNueva(false)
@@ -37,7 +38,7 @@ export default function ApuestaSection({ salidaId, meId }: Props) {
   return (
     <section>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold text-gray-300">Apuestas 🎲</h2>
+        <h2 className="text-sm font-semibold text-gray-300">Apuestas</h2>
         <button
           onClick={() => setNueva((v) => !v)}
           className="text-xs font-semibold text-brand-300 px-3 py-1.5 rounded-lg bg-brand-500/10 active:scale-95 transition"
@@ -51,7 +52,7 @@ export default function ApuestaSection({ salidaId, meId }: Props) {
           <input
             value={texto}
             onChange={(e) => setTexto(e.target.value)}
-            placeholder="Ej: Manolo hoy no liga"
+            placeholder="Ej: Fulano se va antes de las 2"
             className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-brand-500 focus:outline-none"
           />
           <div className="flex items-center gap-2">
@@ -62,7 +63,7 @@ export default function ApuestaSection({ salidaId, meId }: Props) {
               inputMode="decimal"
               className="w-20 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm text-center focus:border-brand-500 focus:outline-none"
             />
-            <span className="text-xs text-gray-600">x lo apostado si acertás</span>
+            <span className="text-xs text-gray-600">si acertás ganás apostado×(cuota−1)</span>
             <button
               onClick={crear}
               className="ml-auto px-4 py-2 rounded-xl bg-brand-500 text-white text-sm font-semibold active:scale-95 transition"
@@ -79,7 +80,7 @@ export default function ApuestaSection({ salidaId, meId }: Props) {
         ))}
         {apuestas.length === 0 && !nueva && (
           <p className="text-xs text-gray-600 text-center py-3">
-            Sin apuestas todavía. Tirá una y a ver quién se anima. 😏
+            Sin apuestas todavía. Tirá una y a ver quién se anima.
           </p>
         )}
       </div>
@@ -118,7 +119,7 @@ function ApuestaCard({ apuesta, meId }: { apuesta: Apuesta; meId: ID }) {
         <div className="min-w-0">
           <p className="text-white font-medium leading-tight">{apuesta.texto}</p>
           <p className="text-[11px] text-gray-600 mt-0.5">
-            cuota {apuesta.cuota}x · propuso {proponente?.displayName}
+            cuota {apuesta.cuota}x · {proponente ? `propuso ${proponente.displayName}` : 'apuesta de la casa'}
           </p>
         </div>
         <span className={`text-[10px] px-2 py-1 rounded-full shrink-0 ${estadoBadge.c}`}>{estadoBadge.t}</span>
@@ -186,7 +187,7 @@ function ApuestaCard({ apuesta, meId }: { apuesta: Apuesta; meId: ID }) {
             >
               Cerrar apuestas → votar resultado
             </button>
-            {apuesta.propuestaPor === meId && (
+            {(apuesta.propuestaPor === meId || apuesta.propuestaPor === 'app') && (
               <button onClick={() => cancelarApuesta(apuesta.id)} className="px-3 py-2 rounded-lg text-xs text-gray-500">
                 Cancelar
               </button>

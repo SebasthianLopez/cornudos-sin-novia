@@ -21,6 +21,7 @@ export default function Perfil({ meId, onWrapped }: Props) {
   const me = db.profiles.find((p) => p.id === meId)
   const [editOpen, setEditOpen] = useState(false)
   const [configOpen, setConfigOpen] = useState(false)
+  const [invitarOpen, setInvitarOpen] = useState(false)
 
   if (!me) return null
 
@@ -47,7 +48,7 @@ export default function Perfil({ meId, onWrapped }: Props) {
           </span>
           {racha > 0 && (
             <span className="text-gray-400">
-              🔥 <b className="text-amber-300">{racha}</b>
+              racha <b className="text-amber-300">{racha}</b>
             </span>
           )}
         </div>
@@ -67,13 +68,10 @@ export default function Perfil({ meId, onWrapped }: Props) {
             {insignias.map((b) => (
               <div
                 key={b.codigo}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10"
+                className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-left"
               >
-                <span className="text-xl">{b.icono}</span>
-                <div className="text-left">
-                  <p className="text-xs font-semibold text-white leading-tight">{b.nombre}</p>
-                  <p className="text-[10px] text-gray-500 leading-tight">{b.descripcion}</p>
-                </div>
+                <p className="text-xs font-semibold text-brand-200 leading-tight">{b.nombre}</p>
+                <p className="text-[10px] text-gray-500 leading-tight mt-0.5">{b.descripcion}</p>
               </div>
             ))}
           </div>
@@ -84,12 +82,13 @@ export default function Perfil({ meId, onWrapped }: Props) {
 
       {/* acciones */}
       <div className="px-4 space-y-2">
-        <MenuRow icon="🎁" label="Mi Wrapped del año" onClick={onWrapped} />
-        <MenuRow icon="⚙️" label="Configurar puntos" onClick={() => setConfigOpen(true)} />
-        <MenuRow icon="🚪" label="Cerrar sesión" onClick={logout} danger />
+        <MenuRow label="Invitar amigos" onClick={() => setInvitarOpen(true)} />
+        <MenuRow label="Mi Wrapped del año" onClick={onWrapped} />
+        <MenuRow label="Configurar puntos" onClick={() => setConfigOpen(true)} />
+        <MenuRow label="Cerrar sesión" onClick={logout} danger />
       </div>
 
-      <p className="text-center text-[11px] text-gray-700 mt-6">Cornudos sin Novia v1.0 · sincronizado con la banda ☁️</p>
+      <p className="text-center text-[11px] text-gray-700 mt-6">Cornudos sin Novia v1.1 · sincronizado con el grupo</p>
 
       <Sheet open={editOpen} onClose={() => setEditOpen(false)} title="Editar perfil">
         <EditProfile me={me} onDone={() => setEditOpen(false)} />
@@ -97,6 +96,10 @@ export default function Perfil({ meId, onWrapped }: Props) {
 
       <Sheet open={configOpen} onClose={() => setConfigOpen(false)} title="Configurar puntos">
         <ConfigPuntos />
+      </Sheet>
+
+      <Sheet open={invitarOpen} onClose={() => setInvitarOpen(false)} title="Invitar amigos">
+        <Invitar />
       </Sheet>
     </div>
   )
@@ -109,12 +112,10 @@ function rankOf(db: DB, meId: ID): number {
 }
 
 function MenuRow({
-  icon,
   label,
   onClick,
   danger,
 }: {
-  icon: string
   label: string
   onClick: () => void
   danger?: boolean
@@ -124,10 +125,69 @@ function MenuRow({
       onClick={onClick}
       className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-white/5 border border-white/5 active:scale-[0.99] transition"
     >
-      <span className="text-xl">{icon}</span>
       <span className={`text-sm font-medium ${danger ? 'text-red-400' : 'text-gray-200'}`}>{label}</span>
       <span className="ml-auto text-gray-600">›</span>
     </button>
+  )
+}
+
+const APP_URL = 'https://sebasthianlopez.github.io/cornudos-sin-novia/'
+
+function Invitar() {
+  const db = useDB()
+  const [copiado, setCopiado] = useState(false)
+  const codigo = db.puntosConfig.codigoGrupo
+  const texto = `Sumate a Cornudos sin Novia, el ranking del grupo: ${APP_URL} — Código de invitación: ${codigo}`
+
+  const copiar = async () => {
+    try {
+      await navigator.clipboard.writeText(texto)
+      setCopiado(true)
+      setTimeout(() => setCopiado(false), 2000)
+    } catch {
+      /* clipboard bloqueado: queda el texto visible para copiar a mano */
+    }
+  }
+
+  const compartir = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ text: texto })
+        return
+      } catch {
+        /* canceló el share */
+      }
+    } else {
+      void copiar()
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-gray-400">
+        Pasales el link y el código. Se registran con su nombre, su foto y un PIN propio.
+      </p>
+      <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+        <p className="text-xs text-gray-500">Link de la app</p>
+        <p className="text-sm text-brand-300 break-all mt-1">{APP_URL}</p>
+        <p className="text-xs text-gray-500 mt-3">Código de invitación</p>
+        <p className="text-3xl font-display font-bold text-white tracking-[0.3em] mt-1">{codigo}</p>
+      </div>
+      <div className="flex gap-2">
+        <button
+          onClick={() => void compartir()}
+          className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-brand-500 to-neon-fuchsia text-white font-semibold active:scale-[0.98] transition"
+        >
+          Compartir
+        </button>
+        <button
+          onClick={() => void copiar()}
+          className="flex-1 py-3 rounded-2xl bg-white/5 border border-white/10 text-gray-200 font-semibold active:scale-[0.98] transition"
+        >
+          {copiado ? 'Copiado' : 'Copiar'}
+        </button>
+      </div>
+    </div>
   )
 }
 
@@ -208,10 +268,10 @@ function EditProfile({ me, onDone }: { me: Profile; onDone: () => void }) {
 }
 
 const TRAGO_LABEL: Record<TragoCodigo, string> = {
-  cerveza: '🍺 Cerveza',
-  fernet: '🥃 Fernet',
-  whisky: '🥃 Whisky',
-  ron: '🍹 Ron',
+  cerveza: 'Cerveza',
+  fernet: 'Fernet',
+  whisky: 'Whisky',
+  ron: 'Ron',
 }
 
 function ConfigPuntos() {
@@ -231,24 +291,40 @@ function ConfigPuntos() {
             />
           )
         })}
-        <ConfigRow label="💔 Rechazo" value={db.puntosConfig.rechazo} onChange={(v) => setPuntosConfig({ rechazo: v })} />
-        <ConfigRow label="🏆 MVP (bonus)" value={db.puntosConfig.mvpBonus} onChange={(v) => setPuntosConfig({ mvpBonus: v })} />
-        <ConfigRow label="⚡ Reto (bonus)" value={db.puntosConfig.retoBonus} onChange={(v) => setPuntosConfig({ retoBonus: v })} />
+        <ConfigRow label="Rechazo" value={db.puntosConfig.rechazo} onChange={(v) => setPuntosConfig({ rechazo: v })} />
+        <ConfigRow label="MVP (bonus)" value={db.puntosConfig.mvpBonus} onChange={(v) => setPuntosConfig({ mvpBonus: v })} />
+        <ConfigRow label="Reto (bonus)" value={db.puntosConfig.retoBonus} onChange={(v) => setPuntosConfig({ retoBonus: v })} />
+        <ConfigRow
+          label="Puntos iniciales"
+          value={db.puntosConfig.puntosIniciales}
+          step={50}
+          onChange={(v) => setPuntosConfig({ puntosIniciales: v })}
+        />
       </div>
     </div>
   )
 }
 
-function ConfigRow({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
+function ConfigRow({
+  label,
+  value,
+  onChange,
+  step = 1,
+}: {
+  label: string
+  value: number
+  onChange: (v: number) => void
+  step?: number
+}) {
   return (
     <div className="flex items-center justify-between px-4 py-2.5 rounded-2xl bg-white/5 border border-white/5">
       <span className="text-sm text-gray-200">{label}</span>
       <div className="flex items-center gap-3">
-        <button onClick={() => onChange(Math.max(0, value - 1))} className="w-8 h-8 rounded-full bg-white/5 text-gray-300 active:scale-90">
+        <button onClick={() => onChange(Math.max(0, value - step))} className="w-8 h-8 rounded-full bg-white/5 text-gray-300 active:scale-90">
           −
         </button>
-        <span className="w-6 text-center font-bold text-brand-300">{value}</span>
-        <button onClick={() => onChange(value + 1)} className="w-8 h-8 rounded-full bg-brand-500 text-white active:scale-90">
+        <span className="min-w-10 text-center font-bold text-brand-300 tabular-nums">{value}</span>
+        <button onClick={() => onChange(value + step)} className="w-8 h-8 rounded-full bg-brand-500 text-white active:scale-90">
           +
         </button>
       </div>

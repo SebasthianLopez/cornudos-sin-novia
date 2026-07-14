@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { useDB } from '../lib/store'
-import { login, register, nombreDisponible } from '../lib/auth'
+import { login, register, nombreDisponible, necesitaCodigo, codigoValido } from '../lib/auth'
 import { fileToDataUrl } from '../lib/format'
 import PinPad from '../components/PinPad'
 import Avatar from '../components/Avatar'
@@ -18,8 +18,12 @@ export default function Auth() {
   // registro
   const [nombre, setNombre] = useState('')
   const [avatar, setAvatar] = useState('')
+  const [codigo, setCodigo] = useState('')
   const [regStep, setRegStep] = useState<'datos' | 'pin'>('datos')
   const fileRef = useRef<HTMLInputElement>(null)
+
+  const pideCodigo = necesitaCodigo()
+  const codigoOk = !pideCodigo || codigoValido(codigo)
 
   const doLogin = (p: string) => {
     if (!selected) return
@@ -46,7 +50,7 @@ export default function Auth() {
     if (saving) return
     setSaving(true)
     try {
-      const res = await register({ displayName: nombre, pin: p, avatar })
+      const res = await register({ displayName: nombre, pin: p, avatar, codigo })
       if (!res.ok) {
         setError(res.error)
         setPin('')
@@ -71,13 +75,11 @@ export default function Auth() {
     <div className="min-h-dvh flex flex-col px-6 pt-safe">
       {/* Hero */}
       <div className="pt-16 pb-8 text-center">
-        <div className="mx-auto w-20 h-20 rounded-3xl grid place-items-center text-4xl bg-gradient-to-br from-brand-500 to-neon-fuchsia shadow-glow animate-float">
-          🍸
-        </div>
+        <img src="./icon.svg" alt="" className="mx-auto w-20 h-20 rounded-3xl shadow-glow animate-float" />
         <h1 className="mt-5 text-4xl font-display font-bold tracking-tight text-gradient">
           Cornudos sin Novia
         </h1>
-        <p className="mt-2 text-gray-400 text-sm">El ranking oficial de la joda 🏆</p>
+        <p className="mt-2 text-gray-400 text-sm">El ranking oficial de la joda</p>
       </div>
 
       {mode === 'home' && (
@@ -117,7 +119,7 @@ export default function Auth() {
                 <p className="text-center text-gray-500 text-sm py-6">
                   Todavía no hay nadie registrado.
                   <br />
-                  Volvé y tocá <b className="text-gray-300">"Sumarme al grupo"</b> 🍻
+                  Volvé y tocá <b className="text-gray-300">"Sumarme al grupo"</b>.
                 </p>
               )}
               <div className="grid grid-cols-3 gap-4">
@@ -180,8 +182,11 @@ export default function Auth() {
                     className="w-28 h-28 rounded-full object-cover ring-2 ring-brand-500"
                   />
                 ) : (
-                  <div className="w-28 h-28 rounded-full grid place-items-center text-4xl bg-white/5 border-2 border-dashed border-white/20">
-                    📷
+                  <div className="w-28 h-28 rounded-full grid place-items-center bg-white/5 border-2 border-dashed border-white/20">
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                      <circle cx="12" cy="13" r="4" />
+                    </svg>
                   </div>
                 )}
                 <span className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-brand-500 grid place-items-center text-sm">
@@ -205,11 +210,30 @@ export default function Auth() {
                 className="w-full px-4 py-3.5 rounded-2xl bg-white/5 border border-white/10 text-white text-center text-lg focus:border-brand-500 focus:outline-none"
               />
               {nombre.trim().length >= 2 && !nombreDisponible(nombre) && (
-                <p className="text-center text-amber-400 text-xs mt-2">Ese nombre ya está usado 😬</p>
+                <p className="text-center text-amber-400 text-xs mt-2">Ese nombre ya está usado.</p>
+              )}
+              {pideCodigo && (
+                <>
+                  <input
+                    value={codigo}
+                    onChange={(e) => {
+                      setCodigo(e.target.value.replace(/\D/g, '').slice(0, 8))
+                      setError('')
+                    }}
+                    inputMode="numeric"
+                    placeholder="Código de invitación"
+                    className="w-full mt-3 px-4 py-3.5 rounded-2xl bg-white/5 border border-white/10 text-white text-center text-lg tracking-widest focus:border-brand-500 focus:outline-none"
+                  />
+                  {codigo.length >= 4 && !codigoOk && (
+                    <p className="text-center text-amber-400 text-xs mt-2">
+                      Ese código no es. Pedile el código a quien te invitó.
+                    </p>
+                  )}
+                </>
               )}
               {error && <p className="text-center text-red-400 text-sm mt-3">{error}</p>}
               <button
-                disabled={nombre.trim().length < 2 || !nombreDisponible(nombre)}
+                disabled={nombre.trim().length < 2 || !nombreDisponible(nombre) || !codigoOk}
                 onClick={() => {
                   setRegStep('pin')
                   setPin('')

@@ -37,11 +37,9 @@ export default function App() {
     return (
       <div className="min-h-dvh grid place-items-center">
         <div className="text-center animate-fade-up">
-          <div className="mx-auto w-20 h-20 rounded-3xl grid place-items-center text-4xl bg-gradient-to-br from-brand-500 to-neon-fuchsia shadow-glow animate-float">
-            🍸
-          </div>
+          <img src="./icon.svg" alt="" className="mx-auto w-20 h-20 rounded-3xl shadow-glow animate-float" />
           <p className="mt-5 text-2xl font-display font-bold text-gradient">Cornudos sin Novia</p>
-          <p className="mt-2 text-sm text-gray-500 animate-pulse">Cargando la joda…</p>
+          <p className="mt-2 text-sm text-gray-500 animate-pulse">Cargando…</p>
         </div>
       </div>
     )
@@ -51,7 +49,6 @@ export default function App() {
     return (
       <div className="min-h-dvh grid place-items-center px-8">
         <div className="text-center">
-          <p className="text-4xl mb-3">📡</p>
           <p className="text-white font-semibold">Sin conexión con el servidor</p>
           <p className="mt-2 text-sm text-gray-500">Fijate tu señal o tus datos y reintentá.</p>
           <button

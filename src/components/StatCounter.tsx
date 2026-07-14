@@ -10,7 +10,12 @@ export default function StatCounter({ icon, label, value, onChange, accent = '#a
   return (
     <div className="flex items-center justify-between py-2.5">
       <div className="flex items-center gap-3 min-w-0">
-        <span className="text-2xl w-8 text-center">{icon}</span>
+        <span
+          className="w-8 h-8 rounded-lg grid place-items-center text-xs font-bold shrink-0"
+          style={{ background: `${accent}22`, color: accent }}
+        >
+          {icon}
+        </span>
         <span className="text-sm text-gray-200 font-medium truncate">{label}</span>
       </div>
       <div className="flex items-center gap-3">

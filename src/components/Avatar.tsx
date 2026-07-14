@@ -23,7 +23,9 @@ export default function Avatar({ profile, size = 44, ring = false, className = '
       {profile.avatar ? (
         <img src={profile.avatar} alt={profile.displayName} className="w-full h-full object-cover" />
       ) : (
-        <span aria-hidden>{profile.emoji}</span>
+        <span aria-hidden className="font-semibold text-white/90">
+          {profile.displayName.trim().charAt(0).toUpperCase()}
+        </span>
       )}
     </div>
   )

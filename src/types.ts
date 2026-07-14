@@ -37,6 +37,10 @@ export interface PuntosConfig {
   rechazo: number
   mvpBonus: number
   retoBonus: number
+  /** puntos con los que arranca cada jugador en el ranking */
+  puntosIniciales: number
+  /** código de invitación que se pide al registrarse */
+  codigoGrupo: string
 }
 
 export interface Salida {

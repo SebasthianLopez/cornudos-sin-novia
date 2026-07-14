@@ -2,6 +2,11 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
+    <!-- CSP: solo se ejecuta código propio; red solo hacia nuestro Supabase. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://aiyadcolohxkaxsrboty.supabase.co; media-src 'self' data: blob: https://aiyadcolohxkaxsrboty.supabase.co; connect-src 'self' https://aiyadcolohxkaxsrboty.supabase.co wss://aiyadcolohxkaxsrboty.supabase.co; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+    />
     <link rel="icon" type="image/svg+xml" href="./icon.svg" />
     <link rel="apple-touch-icon" href="./icon-192.png" />
     <meta

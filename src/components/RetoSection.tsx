@@ -34,7 +34,7 @@ export default function RetoSection({ salidaId, meId }: Props) {
     return (
       <section>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-gray-300">Reto del día ⚡</h2>
+          <h2 className="text-sm font-semibold text-gray-300">Reto del día</h2>
           <span className="text-xs text-gray-600">+{db.puntosConfig.retoBonus}pts</span>
         </div>
         <p className="text-xs text-gray-500 mb-3">Voten cuál va a ser el reto de esta salida.</p>
@@ -109,7 +109,7 @@ export default function RetoSection({ salidaId, meId }: Props) {
   return (
     <section>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold text-gray-300">Reto del día ⚡</h2>
+        <h2 className="text-sm font-semibold text-gray-300">Reto del día</h2>
         <span className="text-xs text-gray-600">+{db.puntosConfig.retoBonus}pts</span>
       </div>
 
@@ -117,7 +117,7 @@ export default function RetoSection({ salidaId, meId }: Props) {
         <p className="text-white font-medium">{reto.texto}</p>
         {confirmado && (
           <p className="text-sm text-amber-300 mt-2">
-            ✅ {profileById(db, confirmado.profileId)?.displayName} lo cumplió · +{db.puntosConfig.retoBonus}pts
+            {profileById(db, confirmado.profileId)?.displayName} lo cumplió · +{db.puntosConfig.retoBonus}pts
           </p>
         )}
       </div>
@@ -129,7 +129,7 @@ export default function RetoSection({ salidaId, meId }: Props) {
               onClick={() => marcarCumplido(reto.id, meId)}
               className="w-full mt-3 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold active:scale-[0.99] transition"
             >
-              ¡Yo lo cumplí! 🙌
+              ¡Yo lo cumplí!
             </button>
           )}
 
@@ -142,7 +142,7 @@ export default function RetoSection({ salidaId, meId }: Props) {
             if (c.estado === 'rechazado') {
               return (
                 <p key={c.id} className="text-xs text-red-400/80 mt-3">
-                  {p?.displayName} dijo que lo cumplió pero el grupo no le creyó 😹
+                  {p?.displayName} dijo que lo cumplió pero el grupo no le creyó.
                 </p>
               )
             }

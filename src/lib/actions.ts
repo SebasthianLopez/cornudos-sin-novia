@@ -7,6 +7,26 @@ import type { DB, ID, TragoCodigo, MediaTipo } from '../types'
 
 // --------------------------- salidas ---------------------------
 
+// Plantillas de la "apuesta de la casa": al crear una salida, la app tira una
+// apuesta al azar sobre alguno de los que van. {n} se reemplaza por el nombre.
+const APUESTAS_CASA = [
+  '{n} no levanta ni una esta noche',
+  '{n} se duerme antes de las 3',
+  '{n} termina hablando de su ex',
+  '{n} pierde el celular o las llaves',
+  '{n} es el primero en querer irse',
+  '{n} termina bailando arriba de una mesa',
+  '{n} paga una ronda para todos',
+  '{n} llega tarde a la previa',
+  '{n} termina cantando a los gritos',
+  'Nadie vomita esta noche',
+]
+const CUOTAS_CASA = [1.2, 1.5, 1.8, 2, 2.5, 3]
+
+function pick<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)]
+}
+
 export function crearSalida(input: {
   fecha: string
   lugar: string
@@ -16,17 +36,32 @@ export function crearSalida(input: {
 }): ID {
   const id = uid()
   mutate((db) => {
+    const participantes = input.participantes.length ? input.participantes : [input.creadoPor]
     db.salidas.push({
       id,
       fecha: input.fecha,
       lugar: input.lugar.trim(),
       notas: input.notas.trim(),
       creadoPor: input.creadoPor,
-      participantes: input.participantes.length ? input.participantes : [input.creadoPor],
+      participantes,
       retoActivoId: null,
       mvpGanadorId: null,
       createdAt: new Date().toISOString(),
     })
+
+    // apuesta random de la casa para arrancar la noche
+    const victima = db.profiles.find((p) => p.id === pick(participantes))
+    if (victima) {
+      db.apuestas.push({
+        id: uid(),
+        salidaId: id,
+        propuestaPor: 'app', // "la casa": no es de ningún jugador
+        texto: pick(APUESTAS_CASA).replace('{n}', victima.displayName),
+        cuota: pick(CUOTAS_CASA),
+        estado: 'abierta',
+        createdAt: new Date().toISOString(),
+      })
+    }
   })
   return id
 }

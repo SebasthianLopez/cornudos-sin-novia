@@ -24,10 +24,10 @@ interface Props {
 }
 
 const TRAGO_META: Record<TragoCodigo, { icon: string; label: string; accent: string }> = {
-  cerveza: { icon: '🍺', label: 'Cerveza', accent: '#f59e0b' },
-  fernet: { icon: '🥃', label: 'Fernet', accent: '#a855f7' },
-  whisky: { icon: '🥃', label: 'Whisky', accent: '#22d3ee' },
-  ron: { icon: '🍹', label: 'Ron', accent: '#ec4899' },
+  cerveza: { icon: 'C', label: 'Cerveza', accent: '#f59e0b' },
+  fernet: { icon: 'F', label: 'Fernet', accent: '#a855f7' },
+  whisky: { icon: 'W', label: 'Whisky', accent: '#22d3ee' },
+  ron: { icon: 'R', label: 'Ron', accent: '#ec4899' },
 }
 
 export default function SalidaDetalle({ salidaId, meId, onBack }: Props) {
@@ -146,7 +146,7 @@ export default function SalidaDetalle({ salidaId, meId, onBack }: Props) {
                 )
               })}
               <StatCounter
-                icon="💔"
+                icon="X"
                 label="Rechazos"
                 accent="#f43f5e"
                 value={getRechazos()}
@@ -175,7 +175,9 @@ export default function SalidaDetalle({ salidaId, meId, onBack }: Props) {
                 <span className="w-5 text-center text-sm font-bold text-gray-500">{i + 1}</span>
                 <Avatar profile={r.profile!} size={32} />
                 <span className="flex-1 text-sm text-gray-200 truncate">{r.profile!.displayName}</span>
-                {salida.mvpGanadorId === r.profile!.id && <span className="text-sm">🏆</span>}
+                {salida.mvpGanadorId === r.profile!.id && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold">MVP</span>
+                )}
                 <span className="text-sm font-bold text-brand-300 tabular-nums">{formatPuntos(r.puntos)}</span>
               </div>
             ))}

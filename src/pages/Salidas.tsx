@@ -18,7 +18,7 @@ export default function Salidas({ meId, onOpenSalida, onNueva }: Props) {
     <div className="pb-6">
       <header className="px-4 pt-5 pb-3 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-display font-bold text-white">Salidas 🌙</h1>
+          <h1 className="text-2xl font-display font-bold text-white">Salidas</h1>
           <p className="text-sm text-gray-500">{salidas.length} noches registradas</p>
         </div>
         <button
@@ -31,7 +31,6 @@ export default function Salidas({ meId, onOpenSalida, onNueva }: Props) {
 
       {salidas.length === 0 && (
         <div className="mt-16 text-center px-8">
-          <div className="text-5xl mb-3 animate-float">🌙</div>
           <p className="text-gray-400">Todavía no hay salidas.</p>
           <p className="text-gray-600 text-sm">Cargá la primera noche de joda.</p>
         </div>
@@ -67,8 +66,8 @@ export default function Salidas({ meId, onOpenSalida, onNueva }: Props) {
                   {parts.slice(0, 5).map((p) => p && <Avatar key={p.id} profile={p} size={26} />)}
                 </div>
                 <div className="flex items-center gap-3 text-xs text-gray-500">
-                  {mvp && <span>🏆 {mvp.displayName}</span>}
-                  {fotos > 0 && <span>📸 {fotos}</span>}
+                  {mvp && <span>MVP {mvp.displayName}</span>}
+                  {fotos > 0 && <span>{fotos} {fotos === 1 ? 'foto' : 'fotos'}</span>}
                 </div>
               </div>
             </button>

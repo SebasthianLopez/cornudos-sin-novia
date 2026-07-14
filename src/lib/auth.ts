@@ -28,6 +28,16 @@ export interface RegisterInput {
   displayName: string
   pin: string
   avatar?: string // dataURL
+  /** código de invitación del grupo (no se pide al primer usuario) */
+  codigo?: string
+}
+
+export function necesitaCodigo(): boolean {
+  return getDB().profiles.length > 0
+}
+
+export function codigoValido(codigo: string): boolean {
+  return codigo.trim() === getDB().puntosConfig.codigoGrupo
 }
 
 export type RegisterResult =
@@ -39,6 +49,8 @@ export async function register(input: RegisterInput): Promise<RegisterResult> {
   if (name.length < 2) return { ok: false, error: 'Poné un nombre (mínimo 2 letras).' }
   if (!/^\d{4}$/.test(input.pin)) return { ok: false, error: 'El PIN tiene que ser de 4 números.' }
   if (!nombreDisponible(name)) return { ok: false, error: 'Ese nombre ya está usado. Probá otro.' }
+  if (necesitaCodigo() && !codigoValido(input.codigo ?? ''))
+    return { ok: false, error: 'Código de invitación incorrecto. Pedile el código al grupo.' }
 
   const id = uid()
 

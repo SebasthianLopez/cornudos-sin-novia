@@ -24,7 +24,7 @@ export default function MvpSection({ salidaId, meId }: Props) {
   return (
     <section>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold text-gray-300">MVP de la noche 🏆</h2>
+        <h2 className="text-sm font-semibold text-gray-300">MVP de la noche</h2>
         <span className="text-xs text-gray-600">+{db.puntosConfig.mvpBonus}pts</span>
       </div>
 

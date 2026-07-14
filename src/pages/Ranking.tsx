@@ -25,7 +25,7 @@ export default function Ranking({ meId, onOpenSalida }: Props) {
   return (
     <div className="pb-6">
       <header className="px-4 pt-5 pb-3">
-        <h1 className="text-2xl font-display font-bold text-white">Ranking 🏆</h1>
+        <h1 className="text-2xl font-display font-bold text-white">Ranking</h1>
         <p className="text-sm text-gray-500">Acumulado de todas las salidas</p>
       </header>
 
@@ -73,15 +73,14 @@ export default function Ranking({ meId, onOpenSalida }: Props) {
         <div className="rounded-2xl bg-white/5 border border-white/5 p-3 text-xs text-gray-500">
           <p className="font-medium text-gray-400 mb-1">Cómo se cuentan los puntos</p>
           <p>
-            🍺 cerveza {db.tragoTipos.find((t) => t.codigo === 'cerveza')?.puntosPorUnidad} · fernet{' '}
+            Todos arrancan con {formatPuntos(db.puntosConfig.puntosIniciales)} pts · cerveza{' '}
+            {db.tragoTipos.find((t) => t.codigo === 'cerveza')?.puntosPorUnidad} · fernet{' '}
             {db.tragoTipos.find((t) => t.codigo === 'fernet')?.puntosPorUnidad} · whisky{' '}
             {db.tragoTipos.find((t) => t.codigo === 'whisky')?.puntosPorUnidad} · ron{' '}
             {db.tragoTipos.find((t) => t.codigo === 'ron')?.puntosPorUnidad} · rechazo{' '}
             {db.puntosConfig.rechazo} · MVP +{db.puntosConfig.mvpBonus} · reto +{db.puntosConfig.retoBonus}
           </p>
-          {ranking.some((r) => r.puntosTotal < 0) && (
-            <p className="text-red-400/80 mt-1">⚠ Ojo: las apuestas perdidas restan y te pueden dejar en rojo.</p>
-          )}
+          <p className="mt-1">Las apuestas perdidas restan: se puede caer por debajo de los puntos iniciales.</p>
           {ultima && (
             <p className="mt-2 text-gray-600">
               Última salida: {ultima.lugar || 'sin lugar'}

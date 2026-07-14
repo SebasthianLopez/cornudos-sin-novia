@@ -195,7 +195,7 @@ insert into public.joda_trago_tipos (id, codigo, nombre, icono, "puntosPorUnidad
   ('ron',     'ron',     'Ron',     '🍹', 3, 4);
 
 insert into public.joda_config (id, "puntosConfig")
-values (1, '{"rechazo": 1, "mvpBonus": 50, "retoBonus": 120}');
+values (1, '{"rechazo": 1, "mvpBonus": 50, "retoBonus": 120, "puntosIniciales": 1000, "codigoGrupo": "4444"}');
 
 -- ---------------- RPC: toda la DB del app en una sola llamada ----------------
 create or replace function public.joda_get_db()

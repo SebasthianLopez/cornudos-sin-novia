@@ -42,12 +42,20 @@ export const TRAGO_TIPOS: TragoTipo[] = [
   { id: 'ron', codigo: 'ron', nombre: 'Ron', icono: '🍹', puntosPorUnidad: 3, orden: 4 },
 ]
 
+const DEFAULT_PUNTOS_CONFIG = {
+  rechazo: 1,
+  mvpBonus: 50,
+  retoBonus: 120,
+  puntosIniciales: 1000,
+  codigoGrupo: '4444',
+}
+
 function emptyDB(): DB {
   return {
     version: DB_VERSION,
     profiles: [],
     tragoTipos: TRAGO_TIPOS,
-    puntosConfig: { rechazo: 1, mvpBonus: 50, retoBonus: 120 },
+    puntosConfig: { ...DEFAULT_PUNTOS_CONFIG },
     salidas: [],
     registrosTrago: [],
     rechazos: [],
@@ -115,7 +123,9 @@ function loadCache(): DB | null {
     const raw = localStorage.getItem(CACHE_KEY)
     if (!raw) return null
     const parsed = JSON.parse(raw) as DB
-    return parsed && parsed.version === DB_VERSION ? parsed : null
+    if (!parsed || parsed.version !== DB_VERSION) return null
+    parsed.puntosConfig = { ...DEFAULT_PUNTOS_CONFIG, ...parsed.puntosConfig }
+    return parsed
   } catch {
     return null
   }
@@ -312,6 +322,8 @@ export async function fetchAll(): Promise<boolean> {
     const db = data as DB
     db.version = DB_VERSION
     if (!db.tragoTipos?.length) db.tragoTipos = TRAGO_TIPOS
+    // config vieja sin los campos nuevos → completar con defaults
+    db.puntosConfig = { ...DEFAULT_PUNTOS_CONFIG, ...db.puntosConfig }
     current = db
     bootError = false
     persistCache()

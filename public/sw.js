@@ -1,7 +1,7 @@
 // Service worker de "Cornudos sin Novia" (PWA instalable + shell offline).
 // Rutas RELATIVAS al scope para que funcione en subcarpetas (GitHub Pages).
 // Navegaciones: network-first (para que lleguen updates); assets: cache-first.
-const CACHE = 'cornudos-v1'
+const CACHE = 'cornudos-v2'
 const SHELL = ['./', './index.html', './icon.svg', './icon-192.png', './icon-512.png', './manifest.webmanifest']
 
 self.addEventListener('install', (event) => {

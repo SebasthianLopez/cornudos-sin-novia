@@ -9,8 +9,6 @@ interface Props {
   onBack: () => void
 }
 
-const TRAGO_EMOJI: Record<string, string> = { cerveza: '🍺', fernet: '🥃', whisky: '🥃', ron: '🍹' }
-
 export default function Wrapped({ meId, onBack }: Props) {
   const db = useDB()
   const me = profileById(db, meId)
@@ -28,7 +26,6 @@ export default function Wrapped({ meId, onBack }: Props) {
 
       <div className="flex-1 px-5 py-4">
         <div className="text-center mb-6 animate-fade-up">
-          <p className="text-5xl mb-2 animate-float">🎁</p>
           <h2 className="text-3xl font-display font-bold text-gradient">
             El {year} de {me?.displayName}
           </h2>
@@ -36,25 +33,24 @@ export default function Wrapped({ meId, onBack }: Props) {
 
         {w.salidas === 0 ? (
           <p className="text-center text-gray-400 mt-10">
-            Todavía no tenés salidas este año. ¡Arrancá a sumar historias! 🍻
+            Todavía no tenés salidas este año. Arrancá a sumar historias.
           </p>
         ) : (
           <div className="space-y-3">
-            <BigStat emoji="🌙" label="Salidas" value={`${w.salidas}`} />
+            <BigStat label="Salidas" value={`${w.salidas}`} />
             <div className="grid grid-cols-2 gap-3">
-              <BigStat emoji="🍻" label="Tragos totales" value={`${w.totalTragos}`} small />
-              <BigStat emoji="💔" label="Rechazos" value={`${w.rechazos}`} small />
+              <BigStat label="Tragos totales" value={`${w.totalTragos}`} small />
+              <BigStat label="Rechazos" value={`${w.rechazos}`} small />
             </div>
             {w.tragoFavorito && w.tragoFavorito.cantidad > 0 && (
               <BigStat
-                emoji={TRAGO_EMOJI[w.tragoFavorito.codigo]}
                 label="Tu trago favorito"
                 value={`${nombreTrago(w.tragoFavorito.codigo)} · ${w.tragoFavorito.cantidad}`}
               />
             )}
             <div className="grid grid-cols-2 gap-3">
-              <BigStat emoji="🏆" label="MVP" value={`${w.mvps}`} small />
-              <BigStat emoji="⚡" label="Retos" value={`${w.retosCumplidos}`} small />
+              <BigStat label="MVP" value={`${w.mvps}`} small />
+              <BigStat label="Retos" value={`${w.retosCumplidos}`} small />
             </div>
             {w.mejorSalida && (
               <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
@@ -76,14 +72,11 @@ export default function Wrapped({ meId, onBack }: Props) {
   )
 }
 
-function BigStat({ emoji, label, value, small }: { emoji: string; label: string; value: string; small?: boolean }) {
+function BigStat({ label, value, small }: { label: string; value: string; small?: boolean }) {
   return (
-    <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-4">
-      <span className={small ? 'text-2xl' : 'text-3xl'}>{emoji}</span>
-      <div>
-        <p className="text-xs text-gray-500">{label}</p>
-        <p className={`font-display font-bold text-white ${small ? 'text-xl' : 'text-2xl'}`}>{value}</p>
-      </div>
+    <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+      <p className="text-xs text-gray-500">{label}</p>
+      <p className={`font-display font-bold text-white mt-0.5 ${small ? 'text-xl' : 'text-2xl'}`}>{value}</p>
     </div>
   )
 }

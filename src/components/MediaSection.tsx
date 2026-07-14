@@ -34,7 +34,7 @@ export default function MediaSection({ salidaId, meId }: Props) {
         const mediaId = uid()
         if (esVideo) {
           if (file.size > MAX_VIDEO_MB * 1024 * 1024) {
-            alert(`Ese video pesa mucho (máx ${MAX_VIDEO_MB}MB). Mandá un clip más corto 🙏`)
+            alert(`Ese video pesa mucho (máx ${MAX_VIDEO_MB}MB). Mandá un clip más corto.`)
             continue
           }
           // videos: directo a Storage (sin base64)
@@ -62,7 +62,7 @@ export default function MediaSection({ salidaId, meId }: Props) {
   return (
     <section>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold text-gray-300">Feed de la noche 📸</h2>
+        <h2 className="text-sm font-semibold text-gray-300">Fotos de la noche</h2>
         <button
           onClick={() => fileRef.current?.click()}
           className="text-xs font-semibold text-brand-300 px-3 py-1.5 rounded-lg bg-brand-500/10 active:scale-95 transition"
@@ -84,7 +84,7 @@ export default function MediaSection({ salidaId, meId }: Props) {
           onClick={() => fileRef.current?.click()}
           className="w-full py-8 rounded-2xl border border-dashed border-white/15 text-gray-500 text-sm active:scale-[0.99] transition"
         >
-          📷 Subí las fotos y videos de la joda
+          Subí las fotos y videos de la joda
         </button>
       ) : (
         <div className="grid grid-cols-3 gap-1.5">
@@ -119,7 +119,11 @@ function MediaThumb({ item }: { item: MediaItem }) {
   if (item.tipo === 'video') {
     return (
       <div className="w-full h-full grid place-items-center bg-black/40">
-        <span className="text-2xl">▶️</span>
+        <span className="w-9 h-9 rounded-full bg-white/20 grid place-items-center">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </span>
       </div>
     )
   }

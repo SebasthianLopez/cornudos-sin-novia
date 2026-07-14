@@ -23,8 +23,10 @@ export function resultadoApuesta(db: DB, apuestaId: ID, profileId: ID): number {
   if (!part) return 0
   const acerto =
     (part.lado && ap.estado === 'cumplida') || (!part.lado && ap.estado === 'no_cumplida')
+  // Ganancia NETA: lo apostado nunca sale del saldo, así que al acertar se
+  // suma apostado×(cuota−1); al errar se resta lo apostado.
   return acerto
-    ? Math.round(part.puntosApostados * ap.cuota)
+    ? Math.round(part.puntosApostados * (ap.cuota - 1))
     : -part.puntosApostados
 }
 
@@ -59,6 +61,7 @@ export function computeRanking(db: DB): RankingRow[] {
     }
 
     const puntosTotal =
+      db.puntosConfig.puntosIniciales +
       puntosTrago + puntosRechazos + puntosMvp + puntosReto + puntosApuestas
 
     return {

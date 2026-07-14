@@ -21,10 +21,9 @@ export default function EnVivo({ meId, onOpenSalida, onNueva }: Props) {
     return (
       <div className="pb-6">
         <header className="px-4 pt-5 pb-3">
-          <h1 className="text-2xl font-display font-bold text-white">En vivo ⚡</h1>
+          <h1 className="text-2xl font-display font-bold text-white">En vivo</h1>
         </header>
         <div className="mt-16 text-center px-8">
-          <div className="text-5xl mb-3 animate-float">⚡</div>
           <p className="text-gray-400">No hay ninguna salida activa.</p>
           <button
             onClick={onNueva}
@@ -42,7 +41,7 @@ export default function EnVivo({ meId, onOpenSalida, onNueva }: Props) {
   return (
     <div className="pb-6">
       <header className="px-4 pt-5 pb-3">
-        <h1 className="text-2xl font-display font-bold text-white">En vivo ⚡</h1>
+        <h1 className="text-2xl font-display font-bold text-white">En vivo</h1>
         <p className="text-sm text-gray-500">Última salida · votá retos, MVP y apuestas</p>
       </header>
 
