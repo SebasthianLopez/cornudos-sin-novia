@@ -48,7 +48,7 @@ export default function InstallPrompt() {
   return (
     <div className="mx-4 mt-3 rounded-2xl border border-brand-500/30 bg-brand-500/10 p-3 animate-fade-up">
       <div className="flex items-start gap-3">
-        <img src="./icon.svg" alt="" className="w-9 h-9 rounded-xl" />
+        <img src="./icon-192.png" alt="" className="w-9 h-9 rounded-xl object-cover" />
         <div className="flex-1">
           <p className="text-sm font-semibold text-white">Instalá la app en tu celu</p>
           <p className="text-xs text-gray-300 mt-0.5">

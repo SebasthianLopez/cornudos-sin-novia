@@ -26,10 +26,25 @@
       radial-gradient(50% 40% at 100% 10%, rgba(34, 211, 238, 0.10), transparent 55%),
       radial-gradient(60% 50% at 50% 100%, rgba(232, 121, 249, 0.08), transparent 60%);
     background-attachment: fixed;
+    /* mobile: sin scroll horizontal ni pull-to-refresh accidental */
+    overflow-x: hidden;
+    overscroll-behavior-y: none;
   }
 
   * {
     -webkit-tap-highlight-color: transparent;
+  }
+
+  /* taps instantáneos y sin selección de texto accidental en controles */
+  button {
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  input,
+  textarea {
+    touch-action: manipulation;
   }
 }
 

@@ -75,7 +75,7 @@ export default function Auth() {
     <div className="min-h-dvh flex flex-col px-6 pt-safe">
       {/* Hero */}
       <div className="pt-16 pb-8 text-center">
-        <img src="./icon.svg" alt="" className="mx-auto w-20 h-20 rounded-3xl shadow-glow animate-float" />
+        <img src="./icon-192.png" alt="" className="mx-auto w-20 h-20 rounded-3xl object-cover shadow-glow animate-float" />
         <h1 className="mt-5 text-4xl font-display font-bold tracking-tight text-gradient">
           Cornudos sin Novia
         </h1>

@@ -37,7 +37,7 @@ export default function App() {
     return (
       <div className="min-h-dvh grid place-items-center">
         <div className="text-center animate-fade-up">
-          <img src="./icon.svg" alt="" className="mx-auto w-20 h-20 rounded-3xl shadow-glow animate-float" />
+          <img src="./icon-192.png" alt="" className="mx-auto w-20 h-20 rounded-3xl object-cover shadow-glow animate-float" />
           <p className="mt-5 text-2xl font-display font-bold text-gradient">Cornudos sin Novia</p>
           <p className="mt-2 text-sm text-gray-500 animate-pulse">Cargando…</p>
         </div>

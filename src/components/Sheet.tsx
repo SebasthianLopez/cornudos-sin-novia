@@ -22,7 +22,7 @@ export default function Sheet({ open, onClose, title, children }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-[fade-up_.2s_ease-out]" onClick={onClose} />
-      <div className="relative w-full sm:max-w-md max-h-[88vh] overflow-y-auto no-scrollbar glass rounded-t-3xl sm:rounded-3xl border border-white/10 shadow-card animate-sheet-up pb-safe">
+      <div className="relative w-full sm:max-w-md max-h-[88dvh] overflow-y-auto no-scrollbar overscroll-contain glass rounded-t-3xl sm:rounded-3xl border border-white/10 shadow-card animate-sheet-up pb-safe">
         <div className="sticky top-0 z-10 flex items-center justify-between px-5 pt-4 pb-3 glass border-b border-white/5">
           <h3 className="text-lg font-semibold text-white">{title}</h3>
           <button
