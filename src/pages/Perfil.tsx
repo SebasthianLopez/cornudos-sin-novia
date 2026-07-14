@@ -9,6 +9,7 @@ import { rachaDe } from '../lib/streak'
 import { fileToDataUrl, formatPuntos } from '../lib/format'
 import Avatar from '../components/Avatar'
 import Sheet from '../components/Sheet'
+import { ComoInstalar, estaInstalada } from '../components/InstallPrompt'
 import type { DB, ID, Profile, TragoCodigo } from '../types'
 
 interface Props {
@@ -22,6 +23,7 @@ export default function Perfil({ meId, onWrapped }: Props) {
   const [editOpen, setEditOpen] = useState(false)
   const [configOpen, setConfigOpen] = useState(false)
   const [invitarOpen, setInvitarOpen] = useState(false)
+  const [instalarOpen, setInstalarOpen] = useState(false)
 
   if (!me) return null
 
@@ -83,6 +85,9 @@ export default function Perfil({ meId, onWrapped }: Props) {
       {/* acciones */}
       <div className="px-4 space-y-2">
         <MenuRow label="Invitar amigos" onClick={() => setInvitarOpen(true)} />
+        {!estaInstalada() && (
+          <MenuRow label="Instalar la app en el celu" onClick={() => setInstalarOpen(true)} />
+        )}
         <MenuRow label="Mi Wrapped del año" onClick={onWrapped} />
         <MenuRow label="Configurar puntos" onClick={() => setConfigOpen(true)} />
         <MenuRow label="Cerrar sesión" onClick={logout} danger />
@@ -100,6 +105,10 @@ export default function Perfil({ meId, onWrapped }: Props) {
 
       <Sheet open={invitarOpen} onClose={() => setInvitarOpen(false)} title="Invitar amigos">
         <Invitar />
+      </Sheet>
+
+      <Sheet open={instalarOpen} onClose={() => setInstalarOpen(false)} title="Instalar la app">
+        <ComoInstalar />
       </Sheet>
     </div>
   )

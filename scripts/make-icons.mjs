@@ -15,6 +15,7 @@ const make = (size, out) =>
     .png()
     .toFile(join(pub, out))
 
+await make(180, 'icon-180.png') // apple-touch-icon (iPhone/iPad)
 await make(192, 'icon-192.png')
 await make(512, 'icon-512.png')
 // maskable: la misma foto a sangre completa (la zona segura es el centro)
